@@ -1,0 +1,16 @@
+;LCD_QUANTITY_DISP
+;This routine should use the last value stored in itemQuantity
+;to display a text to the screen showing current itemQuantity 
+;value alongside message
+;
+; "itemName = itemQuantity" 
+; Key = index of itemNameArr to get name
+; itemQuantity is simultaneusly being updated in ITEM_SELECT routine
+
+
+
+                  XDEF  LCD_QUANTITY_DISP
+                  
+                  
+LCD_QUANTITY_DISP:
+                    RTS

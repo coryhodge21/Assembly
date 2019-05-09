@@ -1,0 +1,139 @@
+;FLAG_LCD_ITEM_SELECT
+
+          XDEF  LCD_ITEM_SELECT  
+
+          XREF  itemArrIndex
+          XREF  FLAG_LCD_ITEM_SELECT
+          XREF  display_string
+          XREF  itemNameArr, itemCountArr
+          XREF  LCD_rotate_counter, LCD_item_select_output_counter
+          XREF  LCD_empty_string, itemQuantity
+          XREF  ASCII_CONV, ASCII_RESULT
+          XREF  Debounce  
+ 
+  Local_Constants: SECTION
+  First_instructions:  dc.b  "Use keys to buy more or less:   ",0 ; declarations for instructions
+  Second_instructions: dc.b  "C for more      D for less     ",0
+  Third_instructions:  dc.b  "F to confirm    0 to cancel    ",0          
+  Quant:               dc.b  "Quantity:                      ",0        
+  Remains:             dc.b  "still available ",0
+   
+LCD_ITEM_SELECT: 
+          LDAA    LCD_item_select_output_counter
+          CMPA    #0
+          BEQ     INSTRUCTIONS1
+          CMPA    #1
+          BEQ     INSTRUCTIONS2
+          CMPA    #2
+          BEQ     INSTRUCTIONS3
+          CMPA    #3
+          BEQ     REMAINING
+          CMPA    #4
+          BEQ     MAIN_OUTPUT        ; here it just cycles through the instructions, three pages worth
+               
+
+INSTRUCTIONS1:
+          LDD     #First_instructions
+          JMP     OUTPUT
+          
+INSTRUCTIONS2: 
+          LDD     #Second_instructions
+          JMP     OUTPUT
+          
+INSTRUCTIONS3: 
+          LDD     #Third_instructions
+          JMP     OUTPUT
+          
+REMAINING:                             ; screen output to show how many of the item are remaining
+          LDY     #itemCountArr
+          LDAA    itemArrIndex
+          DECA                        ; have to decrement because keypad is one indexed, addresses are 0 indexed
+          LDAB    A, Y                ; put how much of the item is left into accumulator B
+          JSR     ASCII_CONV
+          LDX     #LCD_empty_string
+          MOVW    ASCII_RESULT, 2, X+
+          MOVB    #20, 1, X+          ; inserting a space between the number and the item name
+          
+GET_NAME_OF_REMAINING: 
+          LDY     #itemNameArr          
+          LDAA    #2
+          LDAB    itemArrIndex
+          SUBB    #1
+          MUL
+          LEAY    B, Y
+          PSHX                        ; x is storing where we were in the empty string, pushing it
+          LDX     0, Y                ; putting address of item name into x instead
+          LEAX    2, X                ; skipping the first two characters
+          PULY                        ; pulling that empty string spot back into Y
+          LDAA    #0                  ; setting up a counter 
+         
+REMAINING_LOOP1: 
+          LDAB    1, X+
+          STAB    1, Y+
+          INCA    
+          CMPA    #13
+          BNE     REMAINING_LOOP1
+          
+          LDX     #Remains
+          LDAA    #0
+          
+REMAINING_LOOP2: 
+          LDAB    1, X+
+          STAB    1, Y+
+          INCA
+          CMPA    #16
+          BNE     REMAINING_LOOP2
+                   
+          LDAB    #0
+          STAB    0, Y
+          LDD     #LCD_empty_string
+          BRA     OUTPUT
+
+MAIN_OUTPUT:
+          LDY     #itemNameArr        ; grabbing the array that contains all item names
+          LDAA    #2
+          LDAB    itemArrIndex
+          SUBB    #1                  ; setting the item arrindex value to correctly index 
+          MUL                         ; multiplying it times two because we are dealing with word length information
+          LEAY    B, Y                ; shift the address we're trying to access
+          LDX     0,Y                 ; load the address of the string
+          LEAX    2,X                 ; shift down two to skip first two characters
+          LDY     #LCD_empty_string   ; load up the address of our global empty string
+          LDAA    #0                  ; initialize counter
+          
+LOOP1:                                ; loop one stores the selected item to output
+          LDAB    1, x+               ; transferring info from memory
+          STAB    1, y+               ; into the empty string
+          INCA                        ; increment the counter
+          CMPA    #16                 ; check this counter for end of loop
+          BNE     LOOP1               ; loop
+          
+          
+          LDX     #Quant              ; quant is a constantn string
+          LDAA    #0                  ; reset counter
+          
+LOOP2:                                ; loop two puts the phrase "quantity: " on the screen 
+          LDAB    1, x+               ; again transfer memory from quant
+          STAB    1, y+               ; into the empty string
+          INCA
+          CMPA    #10                 ; check for end of loop
+          BNE     LOOP2
+          
+CONVERT_NUMBER:                       ; this section receives the itemQuantity variable, converts, and concats    
+          LDAB    itemQuantity        ; ascii conv is passed the conversion value by accumulator B
+          JSR     ASCII_CONV          ; this subroutine returns the converted number
+                                      ; into accumulator D
+                                      
+          MOVW    ASCII_RESULT, 2, Y+ ; since the value is word length we increment y twice
+          
+          MOVW    #$2020, 2, Y+
+          MOVW    #$2020, 2, Y+           ; this will clear the remainder of the screen 
+          LDAB    #0                  ; this is just adding a terminator
+          STAB    0, Y
+          LDD     #LCD_empty_string   ; putting address to pass to display_string       
+
+OUTPUT: 
+          JSR     display_string
+
+FINISH: 
+          RTS 

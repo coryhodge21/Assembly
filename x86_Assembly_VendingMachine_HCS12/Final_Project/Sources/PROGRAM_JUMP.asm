@@ -1,0 +1,53 @@
+; OverFlow in Rom occurs when this section of code is included in 
+; the Keypad Routine. Temporary Fix          
+          
+                XDEF      PROGRAM_JUMP
+                XREF      Key
+                XREF      ITEM_SELECT
+                XREF      mode_flag
+                XREF      MAKE_SUGGESTION
+                XREF      COIN_RETRIEVAL
+                XREF      RESTOCK
+                
+                
+PROGRAM_JUMP: 
+
+;Check if Key 1 -> 8 pressed:
+                LDAA      Key                
+                LDAB      #1                 ; index starts at 1
+                
+Cont_Item_Key:  CBA                          ; CBA ~  A - B ~ Key - 1 = 0?
+                BEQ       ITEM_SELECT        ; Branch to Subroutine controlling ammount of item selected for purchase
+                INCB                         ; else index++
+                CMPB      #9                 ; check if max index reached
+                BEQ       Not_Item_Select    ; if max index reached, exit loop
+                BRA       Cont_Item_Key      ; if no max index and key still not determined, continue loop         
+Not_Item_Select:               
+
+
+; Check if key 0 "make Suggestion" Selected
+        	    	CMPA 	  	#0                    ;Acc A = Key
+        	    	BEQ	    	MAKE_SUGGESTION
+
+
+; Check if Var:mode_flag = maintenence(1)
+ 		            LDAB      mode_flag           ; B = mode_flag
+ 		            CMPB      #0                  ; if mode_flag = 0, Normal Mode, No more Key Checks
+	              BEQ       Skip_Check
+	              CMPB      #2                  ; if mode_flag = 2, EE Mode, No more Key checks
+	              BEQ       Skip_Check
+
+                ; garunteed maintenance mode   check for Coin Retrieval option
+        	    	CMPA		  #$C                  ; Acc A = Key
+        	    	BEQ	  	  COIN_RETRIEVAL
+        	    	              		             
+	            	CMPA		  #$D                  ; check for Restock option
+	            	BEQ	    	RESTOCK
+
+Skip_Check:
+                
+                
+                RTS
+	            	
+	            	
+	            	

@@ -1,0 +1,24 @@
+; this is the LCD screen that gets put on the screen
+; temporarily when the user hits the make suggestion button
+; 
+
+                 XDEF LCD_MAKE_SUGGESTION
+                 
+                 XREF LCD_empty_string, FLAG_LCD_TIMEOUT
+                 
+                 XREF display_string
+                 
+ Local_variables: SECTION
+ Message:        dc.b "And now for our popular items   ",0                
+ 
+ 
+ LCD_MAKE_SUGGESTION: 
+                MOVB  #1, FLAG_LCD_TIMEOUT
+                LDD   #Message
+                JSR   display_string
+ SCREEN_LOOP: 
+                LDAA  FLAG_LCD_TIMEOUT
+                CMPA  #1
+                BEQ   SCREEN_LOOP
+                
+                RTS    

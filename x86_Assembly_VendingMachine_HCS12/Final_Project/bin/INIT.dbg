@@ -1,0 +1,53 @@
+;Init.asm
+;
+;This SubRoutine Makes initilizations past the Begin File included with the project
+
+
+            ; Allow main to access this file
+		        XDEF	INIT
+		   
+		        ; These vars are refrenced from main
+		        XREF	itemNameArr, itemCountArr, itemQuantity
+            XREF  	item1, item2, item3, item4, item5, item6, item7, item8
+		
+                                            
+                  
+INIT:		
+; Enter: Fill itemCountArr. Initilize all itemCounts in itemCountArr ds.b  8 to value 16 starting stock
+	              	LDX	  	#itemCountArr		          ; X = Array to Clear
+	                LDAA		#1			                  ; A = counter
+	        	      LDAB   	#16			                  ; B = Stock quantity to fill array                 
+                  		
+FillCountArr:	    ;While( a < 8 )
+	        	      STAB		1,X+			                ; itemCountArr(0) = 16
+	        	      INCA					                    ; incriment counter
+	         	      CMPA      	#9			                ; Only 8 Items in the item Count Array
+	        	      BEQ	      CountFilled			          ; if A = 8 spots 0 -> 7 have been filled, Done
+	        	      BRA	    	FillCountArr	      	    ; Else continue	
+CountFilled:	   
+                  ; Exit Fill Count Array Loop	  
+
+	
+; Enter: Fill itemNameArr. Item names "Text" Defined in Main	        	      
+	        	      LDX       #itemNameArr	              ; Load X with address of itemNameArr(0)
+	        	      
+	        	      LDAB      item1                    ; Load address of 1 item name into B 
+	        	      STAB      1,x+                      ; Store the item name in the array, inc X register(1)
+	        	      
+	        	      LDAB      item2                    ; Load address of 2 item name into B 
+	        	      STAB      1,x+                      ; Store the item name in the array, inc X register(2)
+	        	      
+	        	      LDAB      item3                    ; Load address of 3 item name into B 
+	        	      STAB      1,x+                      ; Store the item name in the array, inc X register(4)	        	      
+	        	      
+
+                  ;Exit fill itemName Array
+	 
+	 ;Initilize Variables:
+	               
+	                           
+	               LDAA        #0
+	               STAA        itemQuantity
+	 
+	        	      
+	        	      RTS

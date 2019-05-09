@@ -1,0 +1,10 @@
+;_LCD_USE_POINTS
+
+                XDEF  LCD_USE_POINTS
+                
+                
+                
+                
+LCD_USE_POINTS:
+
+              RTS                

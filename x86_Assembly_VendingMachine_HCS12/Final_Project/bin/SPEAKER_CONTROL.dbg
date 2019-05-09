@@ -1,0 +1,20 @@
+; speaker control subroutine
+
+	XDEF	SPEAKER_OUTPUT
+	XREF	SendsChr, PlayTone
+
+Local_variables: SECTION 
+Pitch_array: dc.b	$15, $15 , $15, $10, $10 
+Pitch_counter: dc.b	5
+
+SPEAKER_OUTPUT: 
+	LDX	#Pitch_array
+	LDY 	Pitch_counter
+LOADING: 
+	LDAA	1, X+
+	PSHA
+	JSR	SendsChr
+	LEAS 1, SP 
+	DBNE	Y, LOADING
+	RTS 	
+	

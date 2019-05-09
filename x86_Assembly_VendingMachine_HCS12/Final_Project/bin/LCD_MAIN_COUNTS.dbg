@@ -1,0 +1,51 @@
+; this code shoudl be called in the interrupt to update counter 
+; related to the LCD main display 
+
+
+        XDEF  LCD_MAIN_COUNTS
+        XREF  LCD_rotate_counter, LCD_output_index
+        XREF  FLAG_LCD_Main
+        
+ LCD_MAIN_COUNTS: 
+        PSHX
+        
+        ; only run through these counters if the flag
+        ; indicating that we are on teh main screen is high
+        LDAA  FLAG_LCD_Main
+        CMPA  #1
+        
+        ; if not equal just high tail it out of here
+        BNE   FINISH
+        
+        ; otherwise load and increment the constantly running 
+        ; counter that rotates us through the screen 
+        LDX   LCD_rotate_counter
+        INX
+        STX   LCD_rotate_counter
+        LDX   #10000
+        CPX   LCD_rotate_counter
+        
+        ; if we have not reached the max time for the counter, again, just exit
+        BNE   FINISH
+        
+        ; if counter has maxed, clear it and store
+        LDX   #0
+        STX   LCD_rotate_counter
+        
+        ; increment the output index twice becuase we are using word length data 
+        INC   LCD_output_index
+        INC   LCD_output_index
+        LDAA  LCD_output_index
+        
+        ; if we have reached the max number of screens, output index will be 20
+        CMPA  #20
+        BNE   FINISH
+        
+        ; if we have reached the max, clear the counter and start over 
+        CLRA
+        STAA  LCD_output_index
+        
+ FINISH: 
+        PULX
+        RTS      
+  

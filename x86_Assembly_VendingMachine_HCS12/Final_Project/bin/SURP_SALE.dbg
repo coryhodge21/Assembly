@@ -1,0 +1,61 @@
+; Surprise Sale
+; 
+; this is a routine that runs every so often 
+; every 5 min ~ 
+; 46875 = 6 seconds
+; run 50 times = 5 min
+;
+; 
+
+
+                XDEF SURP_SALE
+                
+                XREF  SURP_SALE_SECOND
+                XREF  SURP_SALE_MINUTE
+                XREF  FLAG_SURP_SALE
+                XREF  PLAY_A_SONG
+                XREF  PLAY_FLAG
+                
+                
+                
+SURP_SALE:
+             
+       
+         LDD  SURP_SALE_SECOND
+         ADDD #1
+         STD  SURP_SALE_SECOND
+         
+         CPD #46875            ; this is ~ 6 seconds
+         BNE  Done
+         
+         ; else inc inner counter
+         MOVW #0, SURP_SALE_SECOND
+         
+         
+         LDD  SURP_SALE_MINUTE      ; run this 50 times ~ 5 min
+         ADDD #1
+         STD  SURP_SALE_MINUTE
+         
+         CPD  #50
+         BNE  Done
+        
+        ; Now 5 Minutes has passed
+         MOVW #0, SURP_SALE_MINUTE
+         
+       ; play song
+         MOVB  #1, PLAY_FLAG
+         JSR   PLAY_A_SONG
+          
+       ; show lcd allowing surprse sale
+          
+          
+       ; set surp Sale flag high
+         MOVB  #1, FLAG_SURP_SALE
+         
+         
+         
+            
+          
+            
+            
+ Done:      RTS

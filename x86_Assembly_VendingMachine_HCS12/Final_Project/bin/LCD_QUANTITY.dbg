@@ -1,0 +1,15 @@
+;LCD_QUANTITY_DISP 
+;
+; This routine displays the ammount of stock available
+; then allows the user to decide how much they want to purchase
+; updates quantity selection realtime
+              
+
+
+                    XDEF LCD_QUANTITY        ; Routine Display in LOOP: choosing quantity
+
+
+
+
+LCD_QUANTITY:
+                  RTS
